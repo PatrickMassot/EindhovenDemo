@@ -97,6 +97,8 @@ Proof:
   Since ∀ x, |x - x₀| ≤ δ → |f x - f x₀| ≤ ε and |u n - x₀| ≤ δ we conclude that |f (u n) - f x₀| ≤ ε -/
 QED
 
+-- In the previous examples, we can use the `help` tactic and the widgets
+
 -- Let’s now see computations and implicit lemmas
 
 -- set_option trace.Verbose true
