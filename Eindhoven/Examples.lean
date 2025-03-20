@@ -1,4 +1,5 @@
 import Eindhoven.Lib
+setup_env
 
 example (f : ℝ → ℝ) (u : ℕ → ℝ) (x₀ : ℝ)
     (hf : continuous_function_at f x₀) (hu : sequence_tendsto u x₀) :
@@ -20,6 +21,27 @@ example (f : ℝ → ℝ) (u : ℕ → ℝ) (x₀ : ℝ)
   apply hN
   exact n_ge
 
+-- Using controlled natural language but almost same level of help from Lean
+-- (difference: specify what `intro` means)
+
+Exercise "Continuity implies sequential continuity"
+  Given: (f : ℝ → ℝ) (u : ℕ → ℝ) (x₀ : ℝ)
+  Assume: (hu : u converges to x₀) (hf : f is continuous at x₀)
+  Conclusion: (f ∘ u) converges to f x₀
+Proof:
+  Fix ε > 0
+  By hf applied to ε using ε_pos we get δ such that δ_pos and Hf
+  By hu applied to δ using δ_pos we get N such that Hu
+  Let's prove that N works
+  Fix n ≥ N
+  We apply Hf
+  We apply Hu
+  We conclude by n_ge
+QED
+
+-- Now using controlled natural language and less help from computer
+-- (no `We apply` without stating the new goal, and announce more intermediate goals).
+
 Exercise "Continuity implies sequential continuity"
   Given: (f : ℝ → ℝ) (u : ℕ → ℝ) (x₀ : ℝ)
   Assume: (hu : u converges to x₀) (hf : f is continuous at x₀)
@@ -27,7 +49,25 @@ Exercise "Continuity implies sequential continuity"
 Proof:
   Let's prove that ∀ ε > 0, ∃ N, ∀ n ≥ N, |f (u n) - f x₀| ≤ ε
   Fix ε > 0
-  By hf applied to ε using that ε > 0 we get δ such that
+  By hf applied to ε using ε_pos we get δ such that
+    (δ_pos : δ > 0) and (Hf : ∀ x, |x - x₀| ≤ δ ⇒ |f x - f x₀| ≤ ε)
+  By hu applied to δ using δ_pos we get N such that Hu : ∀ n ≥ N, |u n - x₀| ≤ δ
+  Let's prove that N works : ∀ n ≥ N, |f (u n) - f x₀| ≤ ε
+  Fix n ≥ N
+  By Hf applied to u n it suffices to prove |u n - x₀| ≤ δ
+  We conclude by Hu applied to n using n_ge
+QED
+
+-- Removing some hypotheses names
+
+Exercise "Continuity implies sequential continuity"
+  Given: (f : ℝ → ℝ) (u : ℕ → ℝ) (x₀ : ℝ)
+  Assume: (hu : u converges to x₀) (hf : f is continuous at x₀)
+  Conclusion: (f ∘ u) converges to f x₀
+Proof:
+  Let's prove that ∀ ε > 0, ∃ N, ∀ n ≥ N, |f (u n) - f x₀| ≤ ε
+  Fix ε > 0
+  By hf applied to ε using that ε > 0 we get δ such that -- Note “using that ε > 0”
     (δ_pos : δ > 0) and (Hf : ∀ x, |x - x₀| ≤ δ ⇒ |f x - f x₀| ≤ ε)
   By hu applied to δ using that δ > 0 we get N such that Hu : ∀ n ≥ N, |u n - x₀| ≤ δ
   Let's prove that N works : ∀ n ≥ N, |f (u n) - f x₀| ≤ ε
@@ -36,7 +76,8 @@ Proof:
   We conclude by Hu applied to n using that n ≥ N
 QED
 
--- Variation without referring to any assumption label
+-- Removing all references to assumption names
+
 Exercise "Continuity implies sequential continuity"
   Given: (f : ℝ → ℝ) (u : ℕ → ℝ) (x₀ : ℝ)
   Assume: (hu : u converges to x₀) (hf : f is continuous at x₀)
@@ -56,6 +97,9 @@ Proof:
   Since ∀ x, |x - x₀| ≤ δ → |f x - f x₀| ≤ ε and |u n - x₀| ≤ δ we conclude that |f (u n) - f x₀| ≤ ε -/
 QED
 
+-- Let’s now see computations and implicit lemmas
+
+-- set_option trace.Verbose true
 Example "The squeeze theorem."
   Given: (u v w : ℕ → ℝ) (l : ℝ)
   Assume: (hu : u converges to l) (hw : w converges to l)
@@ -80,6 +124,8 @@ Proof:
        _       ≤ ε        since |w n - l| ≤ ε
 QED
 
+-- An exmple with contrapositive, and some lemmas about even and odd numbers
+
 Example "Parity and squaring"
   Given: (n : ℤ)
   Assume:
@@ -99,4 +145,55 @@ Proof:
     Since n = 2 * k it suffices to prove that (2 * k)^2 is even
     Let's prove that 2*k^2 works
     We compute
+QED
+
+/- Let’s see how to introduce ad hoc lemmas for students.
+
+Here we tell students that `v₂` is the function sending an integer to the
+exponent of 2 in it prime factors decomposition. There are only two facts
+needed about this function
+
+`∀ p : ℤ, v₂ (p^2) is even`
+
+`∀ p : ℤ, p ≠ 0 ⇒ v₂ (2*p) = v₂ p + 1`
+
+We also registered a bunch of lemmas about even and odd numbers
+(that we can list for students).
+-/
+
+-- set_option trace.Verbose true in
+Exercise "Irrationality of √2"
+  Given: (p q : ℤ)
+  Assume: (hq : q ≠ 0)
+  Conclusion: p^2 ≠ 2*q^2
+Proof:
+  Assume H : p^2 = 2 * q^2
+  Let's prove that False
+  Since v₂ (p^2) is even it suffices to prove that v₂ (p^2) is odd
+  Since v₂ (q^2) is even we get k such that hk : v₂ (q^2) = 2*k
+  Let's prove that k works: v₂ (p^2) = 2*k + 1
+  Since q ≠ 0 we get hq' : q^2 ≠ 0
+  Calc
+    v₂ (p ^ 2) = v₂ (2*q^2)   since p^2 = 2*q^2
+    _          = v₂ (q^2) + 1 since q^2 ≠ 0
+    _          = 2 * k + 1    since v₂ (q^2) = 2*k
+QED
+
+-- Let’s see a slightly different layout
+
+Exercise "Irrationality of √2"
+  Given: (p q : ℤ)
+  Assume: (hq : q ≠ 0)
+  Conclusion: p^2 ≠ 2*q^2
+Proof:
+  Assume H : p^2 = 2 * q^2
+  Let's prove that False
+  Since q ≠ 0 we get h₁ : q^2 ≠ 0
+  Fact h₁ : v₂ (p^2) = v₂ (q^2) + 1 by Calc
+    v₂ (p ^ 2) = v₂ (2*q^2)    since p^2 = 2*q^2
+    _          = v₂ (q^2) + 1  since q^2 ≠ 0
+  Since v₂ (q^2) is even we get h₂ : v₂ (q^2) + 1 is odd
+  Since v₂ (p^2) = v₂ (q^2) + 1 and v₂ (q^2) + 1 is odd
+    we get  h₃ : v₂ (p^2) is odd
+  Since v₂ (p^2) is even and v₂ (p^2) is odd we conclude that False
 QED
