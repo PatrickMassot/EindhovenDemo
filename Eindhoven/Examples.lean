@@ -1,4 +1,4 @@
-import Eindhoven.ExampleLib
+import Eindhoven.Lib
 
 example (f : ℝ → ℝ) (u : ℕ → ℝ) (x₀ : ℝ)
     (hf : continuous_function_at f x₀) (hu : sequence_tendsto u x₀) :
